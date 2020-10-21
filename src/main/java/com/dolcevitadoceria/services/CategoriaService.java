@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.dolcevitadoceria.domain.Categoria;
 import com.dolcevitadoceria.repositories.CategoriaRepository;
+import com.dolcevitadoceria.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class CategoriaService {
@@ -16,7 +17,7 @@ public class CategoriaService {
 	
 	public Categoria getCategoriaById (Integer id) {
 		Optional<Categoria> obj = categoriaRepository.findById(id);
-		return obj.orElse(null);
-		
+		return obj.orElseThrow(() -> new ObjectNotFoundException(
+		"Objeto não encontrado! Id: " + id + ", Tipo: " + Categoria.class.getName()));
 	}
 }
