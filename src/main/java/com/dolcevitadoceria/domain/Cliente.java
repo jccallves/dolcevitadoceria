@@ -126,14 +126,7 @@ public class Cliente implements Serializable{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((cpfOuCnpj == null) ? 0 : cpfOuCnpj.hashCode());
-		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + ((enderecos == null) ? 0 : enderecos.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
-		result = prime * result + ((pedidos == null) ? 0 : pedidos.hashCode());
-		result = prime * result + ((telefones == null) ? 0 : telefones.hashCode());
-		result = prime * result + ((tipo == null) ? 0 : tipo.hashCode());
 		return result;
 	}
 
@@ -146,53 +139,12 @@ public class Cliente implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		Cliente other = (Cliente) obj;
-		if (cpfOuCnpj == null) {
-			if (other.cpfOuCnpj != null)
-				return false;
-		} else if (!cpfOuCnpj.equals(other.cpfOuCnpj))
-			return false;
-		if (email == null) {
-			if (other.email != null)
-				return false;
-		} else if (!email.equals(other.email))
-			return false;
-		if (enderecos == null) {
-			if (other.enderecos != null)
-				return false;
-		} else if (!enderecos.equals(other.enderecos))
-			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (nome == null) {
-			if (other.nome != null)
-				return false;
-		} else if (!nome.equals(other.nome))
-			return false;
-		if (pedidos == null) {
-			if (other.pedidos != null)
-				return false;
-		} else if (!pedidos.equals(other.pedidos))
-			return false;
-		if (telefones == null) {
-			if (other.telefones != null)
-				return false;
-		} else if (!telefones.equals(other.telefones))
-			return false;
-		if (tipo == null) {
-			if (other.tipo != null)
-				return false;
-		} else if (!tipo.equals(other.tipo))
-			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Cliente [id=" + id + ", nome=" + nome + ", email=" + email + ", cpfOuCnpj=" + cpfOuCnpj + ", tipo="
-				+ tipo + ", enderecos=" + enderecos + ", telefones=" + telefones + ", pedidos=" + pedidos + "]";
 	}
 
 	
