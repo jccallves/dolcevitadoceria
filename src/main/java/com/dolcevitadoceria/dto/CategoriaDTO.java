@@ -13,10 +13,8 @@ public class CategoriaDTO implements Serializable {
 	private static final long serialVersionUID = 2259052414882391487L;
 	private Integer id;
 	
-	@NotEmpty(message="Preenchimento obrigatório")
-
-	@Length(min = 5, max = 80, message 
-    = "About Me must be between 10 and 200 characters")
+	@NotEmpty(message = "Preenchimento obrigatório")
+	@Length(min = 5, max = 80, message = "O tamanho deve ser entre 5 e 80 caracteres")
 	private String nome;
 
 	public CategoriaDTO() {
