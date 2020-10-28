@@ -15,11 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dolcevitadoceria.domain.Cidade;
 import com.dolcevitadoceria.domain.Cliente;
 import com.dolcevitadoceria.domain.Endereco;
+import com.dolcevitadoceria.domain.enums.Perfil;
 import com.dolcevitadoceria.domain.enums.TipoCliente;
 import com.dolcevitadoceria.dto.ClienteDTO;
 import com.dolcevitadoceria.dto.ClienteNewDTO;
 import com.dolcevitadoceria.repositories.ClienteRepository;
 import com.dolcevitadoceria.repositories.EnderecoRepository;
+import com.dolcevitadoceria.security.UserSS;
+import com.dolcevitadoceria.services.exceptions.AuthorizationException;
 import com.dolcevitadoceria.services.exceptions.DataIntegrityException;
 import com.dolcevitadoceria.services.exceptions.ObjectNotFoundException;
 
@@ -36,6 +39,14 @@ public class ClienteService {
 	private BCryptPasswordEncoder pe;
 	
 	public Cliente getClienteById (Integer id) {
+		
+		UserSS user = UserService.authenticated();
+		if (user==null || !user.hasRole(Perfil.ADMIN) && !id.equals(user.getId())) {
+			throw new AuthorizationException("Acesso negado");
+		}
+
+
+		
 		Optional<Cliente> obj = clienteRepository.findById(id);
 		return obj.orElseThrow(() -> new ObjectNotFoundException(
 		"Objeto não encontrado! Id: " + id + ", Tipo: " + Cliente.class.getName()));
