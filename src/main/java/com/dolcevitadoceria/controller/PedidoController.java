@@ -1,6 +1,8 @@
 package com.dolcevitadoceria.controller;
 
 import java.net.URI;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
 
@@ -36,5 +38,15 @@ public class PedidoController {
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
 				.path("/{id}").buildAndExpand(obj.getId()).toUri();
 		return ResponseEntity.created(uri).build();
+	}
+	
+	@RequestMapping(method=RequestMethod.GET)
+	public ResponseEntity<Page<Pedido>> findPage(
+			@RequestParam(value="page", defaultValue="0") Integer page, 
+			@RequestParam(value="linesPerPage", defaultValue="24") Integer linesPerPage, 
+			@RequestParam(value="orderBy", defaultValue="instante") String orderBy, 
+			@RequestParam(value="direction", defaultValue="DESC") String direction) {
+		Page<Pedido> list = pedService.findPage(page, linesPerPage, orderBy, direction);
+		return ResponseEntity.ok().body(list);
 	}
 }
