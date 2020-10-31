@@ -1,12 +1,17 @@
 package com.dolcevitadoceria.controller;
 
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,8 +21,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.dolcevitadoceria.controller.utils.UploadImage;
 import com.dolcevitadoceria.domain.Cliente;
 import com.dolcevitadoceria.dto.ClienteDTO;
 import com.dolcevitadoceria.dto.ClienteNewDTO;
@@ -29,6 +36,12 @@ public class ClienteController {
 
 	@Autowired
 	private ClienteService cliService;
+	
+	@Autowired
+	private UploadImage uploadImage;
+	
+	@Autowired
+	private ResourceLoader resourceLoader;
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.GET)
 	public ResponseEntity<Cliente> listar(@PathVariable Integer id ) {
@@ -84,6 +97,26 @@ public class ClienteController {
 	public ResponseEntity<Cliente> find(@RequestParam(value="value") String email) {
 		Cliente obj = cliService.findByEmail(email);
 		return ResponseEntity.ok().body(obj);
+	}
+	
+	@RequestMapping(value="/picture", method=RequestMethod.POST)
+	public ResponseEntity<?> uploadProfilePicture(@RequestParam(name="file") MultipartFile file) {
+		
+		//		String caminho = getClass().getResource("/").getPath().substring(0,59) + "/resources/clientes";
+//		String caminho2 = caminho.substring(59,75);
+//		String caminho3 = caminho.substring(0,59);
+//		System.out.println("Caminho: " + caminho);
+//		System.out.println("Caminho 2: " + caminho2);
+//		System.out.println("Caminho 3: " + caminho3);
+		
+		//Resource resource = resourceLoader.getResource("classpath:clientes");
+		//System.out.println("Resource: " + resource);
+		//String caminho = getClass().getResource("").toString();
+		//System.out.println("Caminho: " + caminho);
+		uploadImage.salvarFoto(file);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+				.path("/{id}").buildAndExpand(uploadImage).toUri();
+		return ResponseEntity.created(uri).build();
 	}
 
 
