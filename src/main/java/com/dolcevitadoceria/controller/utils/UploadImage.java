@@ -1,13 +1,18 @@
 package com.dolcevitadoceria.controller.utils;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.imageio.ImageIO;
+
 import org.apache.commons.io.FilenameUtils;
+import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,46 +32,82 @@ public class UploadImage {
 	@Value("${img.prefix.client.profile}")
 	private String prefix;
 	
+	@Value("${img.profile.size}")
+	private Integer size;
+	
+	private String pathToStore;
 	
 	public void salvarFoto(MultipartFile foto) {
 		
 		this.salvar(this.clienteFolder, foto);
 	}
 	
-//	public void salvar(String diretorio, MultipartFile arquivo) {
-//		Path diretorioPath = Paths.get(this.path, diretorio);
-//		Path arquivoPath = diretorioPath.resolve(arquivo.getOriginalFilename());
-//		
-//		try {
-//			Files.createDirectories(diretorioPath);
-//			arquivo.transferTo(arquivoPath.toFile());			
-//		} catch (IOException e) {
-//			throw new RuntimeException("Problemas na tentativa de salvar arquivo.", e);
-//		}		
-//	}
-
-	
-	public Path salvar(String clientFolder, MultipartFile arquivo) {
-		//String caminho = getClass().getResource("").getPath().substring(0,59) + "/src/main/resources/clientes";
+	public String salvar(String clientFolder, MultipartFile arquivo) {
 		
 		UserSS user = UserService.authenticated();
-		
 		if (user == null) {
 			throw new AuthorizationException("Acesso negado	!");
 		}
 
-		Path diretorioPath = Paths.get(this.path , clienteFolder);
-		String extensaoDoArquivo = "." + FilenameUtils.getExtension(arquivo.getOriginalFilename());
-		String newFileName = this.prefix + user.getId() + extensaoDoArquivo;
-		Path arquivoPath = diretorioPath.resolve(newFileName);
-		
-		System.out.println("Novo arquivo com prefixo: " + arquivoPath);
 		try {
-			Files.createDirectories(diretorioPath);
-			arquivo.transferTo(arquivoPath.toFile());
-			return arquivoPath;
-		} catch (IOException e) {
-			throw new RuntimeException("Problemas na tentativa de salvar arquivo.", e);
-		}		
+			Path diretorioPath = Paths.get(this.path , clienteFolder);
+			String extensaoDoArquivo = "." + FilenameUtils.getExtension(arquivo.getOriginalFilename());
+			String newFileName = this.prefix + user.getId() + extensaoDoArquivo;
+			String arquivoPath = diretorioPath.resolve(newFileName).toString();
+			System.out.println("Novo arquivo com prefixo: " + arquivoPath);
+			BufferedImage croppedImage = cropAndResizeImageSquare(arquivo.getBytes());
+			String ext = FilenameUtils.getExtension(arquivo.getOriginalFilename());
+
+			// Save the file locally
+			File outputfile = new File(arquivoPath);
+			ImageIO.write(croppedImage, ext, outputfile);
+			this.pathToStore = arquivoPath;
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+		return this.pathToStore;
 	}
+	
+	private BufferedImage cropAndResizeImageSquare(byte[] image) throws IOException {
+		  // Get a BufferedImage object from a byte array
+		  InputStream in = new ByteArrayInputStream(image);
+		  BufferedImage originalImage = ImageIO.read(in);
+		  
+		  // Get image dimensions
+		  int height = originalImage.getHeight();
+		  int width = originalImage.getWidth();
+		  
+		  // The image is already a square
+		  if (height == width) {
+		    return originalImage;
+		  }
+		  
+		  // Compute the size of the square
+		  int squareSize = (height > width ? width : height);
+		  
+		  // Coordinates of the image's middle
+		  int xc = width / 2;
+		  int yc = height / 2;
+		  
+		  // Crop
+		  BufferedImage croppedImage = originalImage.getSubimage(
+		      xc - (squareSize / 2), // x coordinate of the upper-left corner
+		      yc - (squareSize / 2), // y coordinate of the upper-left corner
+		      squareSize,            // widht
+		      squareSize             // height
+		  );
+		  croppedImage = Scalr.resize(croppedImage, Scalr.Method.QUALITY, size);
+		  return croppedImage;
+		}
+
+	
+	public String getPathToStore() {
+		return pathToStore;
+	}
+
+	public void setPathToStore(String pathToStore) {
+		this.pathToStore = pathToStore;
+	}
+
+	
 }
